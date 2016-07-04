@@ -12,7 +12,10 @@ namespace ReentryParticleEffect
         public Vector3 velocity;
         public int MaxParticles = 3000;
         public int MaxEmissionRate = 400;
-        public float EffectMultiplier = 0.9f;
+        // Minimum reentry strength that the effects will activate at.
+        // 0 = Activate at the first sign of the flame effects.
+        // 1 = Never activate, even at the strongest reentry strength.
+        public float EffectThreshold = 0.5f;
 
         private void Start()
         {
@@ -44,7 +47,7 @@ namespace ReentryParticleEffect
 
         private void FixedUpdate()
         {
-            float effectStrength = AeroFX.FxScalar * AeroFX.state * EffectMultiplier;
+            float effectStrength = (AeroFX.FxScalar * AeroFX.state - EffectThreshold) * (1 / EffectThreshold);
             List<Vessel> vessels = FlightGlobals.Vessels;
             for (int i = vessels.Count - 1; i >= 0; --i)
             {
