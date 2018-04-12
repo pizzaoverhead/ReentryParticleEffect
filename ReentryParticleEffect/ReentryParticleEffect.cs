@@ -26,22 +26,22 @@ namespace ReentryParticleEffect
         {
             public ReentryEffect(GameObject effect)
             {
-				ParticleSystem[] particleSystems = effect.GetComponentsInChildren<ParticleSystem>();
+                ParticleSystem[] particleSystems = effect.GetComponentsInChildren<ParticleSystem>();
                 Trail = particleSystems[0];
                 Sparks = particleSystems[1];
-				FXPrefab[] prefabs = effect.GetComponentsInChildren<FXPrefab>();
-				trailPrefab = prefabs[0];
+                FXPrefab[] prefabs = effect.GetComponentsInChildren<FXPrefab>();
+                trailPrefab = prefabs[0];
             }
-			public FXPrefab trailPrefab;
+            public FXPrefab trailPrefab;
             public ParticleSystem Trail;
             public ParticleSystem Sparks;
 
-			public void Die ()
-			{
-				Destroy (trailPrefab);
-				Destroy (Trail);
-				Destroy (Sparks);
-			}
+            public void Die ()
+            {
+                Destroy (trailPrefab);
+                Destroy (Trail);
+                Destroy (Sparks);
+            }
         }
 
         public ReentryEffect GetEffect()
@@ -80,7 +80,7 @@ namespace ReentryParticleEffect
                 {
                     if (effects != null)
                     {
-						effects.Die ();
+                        effects.Die ();
                     }
                     effects = null;
                     continue;
@@ -135,7 +135,7 @@ namespace ReentryParticleEffect
                 ReentryEffect effects = VesselDict[vessel.id];
                 if (effects != null)
                 {
-					effects.Die ();
+                    effects.Die ();
                 }
                 VesselDict.Remove(vessel.id);
             }
