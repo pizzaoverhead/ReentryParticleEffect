@@ -24,20 +24,30 @@ namespace ReentryParticleEffect
 
         public class ReentryEffect
         {
-            public ReentryEffect(ParticleSystem trail, ParticleSystem sparks)
+            public ReentryEffect(GameObject effect)
             {
-                Trail = trail;
-                Sparks = sparks;
+                ParticleSystem[] particleSystems = effect.GetComponentsInChildren<ParticleSystem>();
+                Trail = particleSystems[0];
+                Sparks = particleSystems[1];
+                FXPrefab[] prefabs = effect.GetComponentsInChildren<FXPrefab>();
+                trailPrefab = prefabs[0];
             }
+            public FXPrefab trailPrefab;
             public ParticleSystem Trail;
             public ParticleSystem Sparks;
+
+            public void Die ()
+            {
+                Destroy (trailPrefab);
+                Destroy (Trail);
+                Destroy (Sparks);
+            }
         }
 
         public ReentryEffect GetEffect()
         {
             GameObject effect = (GameObject)GameObject.Instantiate(Resources.Load("Effects/fx_reentryTrail"));
-            ParticleSystem[] particleSystems = effect.GetComponentsInChildren<ParticleSystem>();
-            ReentryEffect reentryFx = new ReentryEffect(particleSystems[0], particleSystems[1]);
+            ReentryEffect reentryFx = new ReentryEffect(effect);
             reentryFx.Trail.playbackSpeed = 5;
             reentryFx.Sparks.playbackSpeed = 5;
             return reentryFx;
@@ -70,8 +80,7 @@ namespace ReentryParticleEffect
                 {
                     if (effects != null)
                     {
-                        Destroy(effects.Sparks);
-                        Destroy(effects.Trail);
+                        effects.Die ();
                     }
                     effects = null;
                     continue;
@@ -126,8 +135,7 @@ namespace ReentryParticleEffect
                 ReentryEffect effects = VesselDict[vessel.id];
                 if (effects != null)
                 {
-                    Destroy(effects.Trail);
-                    Destroy(effects.Sparks);
+                    effects.Die ();
                 }
                 VesselDict.Remove(vessel.id);
             }
