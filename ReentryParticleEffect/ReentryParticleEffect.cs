@@ -20,6 +20,7 @@ namespace ReentryParticleEffect
         public Vector3 velocity;
         public static int MaxParticles = 3000;
         public static int MaxEmissionRate = 200;
+        public static float TrailScale = 0.15f;
         // Minimum reentry strength that the effects will activate at.
         // 0 = Activate at the first sign of the flame effects.
         // 1 = Never activate, even at the strongest reentry strength.
@@ -60,7 +61,10 @@ namespace ReentryParticleEffect
             ReentryEffect reentryFx = new ReentryEffect(effect);
             // Set the effect speed high to animate as fast as is visible.
             var trailMain = reentryFx.Trail.main;
+            reentryFx.Trail.transform.localScale = new Vector3(TrailScale, TrailScale, TrailScale);
+            trailMain.scalingMode = ParticleSystemScalingMode.Local;
             trailMain.simulationSpeed = 5;
+
             var sparksMain = reentryFx.Sparks.main;
             sparksMain.simulationSpeed = 5;
 
@@ -68,10 +72,6 @@ namespace ReentryParticleEffect
         }
 
         public static Dictionary<Guid, ReentryEffect> VesselDict = new Dictionary<Guid, ReentryEffect>();
-
-        // Temporary for GUI
-        /*private static float effectStrength = 0;
-        private static AerodynamicsFX afx1 = null;*/
 
         private void FixedUpdate()
         {
@@ -111,7 +111,16 @@ namespace ReentryParticleEffect
                 ParticleSystem.EmissionModule sparksEmission = effects.Sparks.emission;
                 if (AeroFX != null)
                 {
-                    //afx1 = AeroFX;
+                    //effects.Trail.transform.localScale = new Vector3(TrailScale, TrailScale, TrailScale);
+#if DEBUG
+                    afx1 = AeroFX;
+                    
+                    effects.Trail.transform.localScale = new Vector3(scaleX, scaleY, scaleZ);
+
+                    var main = effects.Trail.main;
+                    main.scalingMode = _scalingMode;
+#endif
+
                     // FxScalar: Strength of the effects.
                     // state: 0 = condensation, 1 = reentry.
                     if (effectStrength > 0)
@@ -178,7 +187,8 @@ namespace ReentryParticleEffect
                 return _aeroFX;
             }
         }
-        /*
+
+
         public static Color BlackBodyToRgb(float tempKelvin)
         {
             // C# implementation of Tanner Helland's approximation from here:
@@ -243,9 +253,31 @@ namespace ReentryParticleEffect
             return new Color(red/255, green/255, blue/255, 1);
         }
 
+#if DEBUG
+        private static float effectStrength = 0;
+        private static AerodynamicsFX afx1 = null;
+        private static Rect windowPos = new Rect(Screen.width / 4, Screen.height / 4, 10f, 10f);
+
+        /// <summary>
+        /// GUI draw event. Called (at least once) each frame.
+        /// </summary>
+        public void OnGUI()
+        {
+            if (DrawGui)
+                windowPos = GUILayout.Window(GetInstanceID(), windowPos, Gui, "Test GUI", GUILayout.Width(600), GUILayout.Height(50));
+        }
         private static string _trailPlaybackText = "5";
         private static string _sparksPlaybackText = "5";
-        public static void Gui()
+        private static ParticleSystemScalingMode _scalingMode;
+        private static float scaleX;
+        private static float scaleY;
+        private static float scaleZ;
+        private static string scaleXText = "1";
+        private static string scaleYText = "1";
+        private static string scaleZText = "1";
+
+
+        public static void Gui(int windowID)
         {
             ReentryEffect effects = null;
             if (VesselDict.ContainsKey(FlightGlobals.ActiveVessel.id))
@@ -309,7 +341,7 @@ namespace ReentryParticleEffect
                     new GradientColorKey[] { new GradientColorKey(Color.blue, 0.0f), new GradientColorKey(Color.red, 1.0f) }, 
                     new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) }
                     );
-                * /
+                */
 
                 key0 = GuiUtils.rgbaSlider("Colour Gradient 0", ref key0.r, ref key0.g, ref key0.b, ref key0.a, 0f, 1f);
                 key1 = GuiUtils.rgbaSlider("Colour Gradient 1", ref key1.r, ref key1.g, ref key1.b, ref key1.a, 0f, 1f);
@@ -335,7 +367,12 @@ namespace ReentryParticleEffect
                 float sparksPlaybackSpeed = sparksMain.simulationSpeed;
                 _sparksPlaybackText = GuiUtils.editFloat("Playback speed", _sparksPlaybackText, out sparksPlaybackSpeed, 5);
                 sparksMain.simulationSpeed = sparksPlaybackSpeed;
-            }* /
+            }*/
+
+            scaleXText = GuiUtils.editFloat("X Scale", scaleXText, out scaleX, 1);
+            scaleYText = GuiUtils.editFloat("Y Scale", scaleYText, out scaleY, 1);
+            scaleZText = GuiUtils.editFloat("Z Scale", scaleZText, out scaleZ, 1);
+            GUI.DragWindow();
         }
 
         public static float GetVesselMaxSkinTemp()
@@ -349,7 +386,8 @@ namespace ReentryParticleEffect
             }
 
             return maxTemp;
-        }*/
+        }
+#endif
     }
 
     /*[KSPAddon(KSPAddon.Startup.MainMenu, false)]
